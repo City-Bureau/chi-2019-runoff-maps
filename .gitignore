@@ -1,0 +1,9 @@
+.DS_Store
+aggspread*
+input/*
+!input/.keep
+tiles/*
+!tiles/.keep
+data/*.*
+data/candidates/*.*
+!data/candidates/.keep

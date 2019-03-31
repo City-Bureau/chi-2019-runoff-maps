@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chicago 2019 Runoff Election Results | City Bureau</title>
+    <link rel="shortcut icon" type="image/x-icon" href="https://s3.amazonaws.com/chicago-election-2019/runoff/img/favicon.ico"/>
+    <meta name="description" content="View Chicago 2019 runoff election results at the ward and precinct level">
+    <meta name="author" content="City Bureau">
+
+    <meta property="og:site_name" content="Chicago 2019 Runoff Election Results">
+    <meta property="og:title" content="Chicago 2019 Runoff Election Results">
+    <meta property="og:type" content="website">
+    <meta property="og:description" content="View Chicago 2019 runoff election results at the ward and precinct level">
+    <meta property="og:url" content="https://s3.amazonaws.com/chicago-election-2019/runoff/index.html">
+    <meta property="og:image" content="https://s3.amazonaws.com/chicago-election-2019/teaser.jpg">
+    <meta property="og:image:width" content="2400" />
+    <meta property="og:image:height" content="1260" />
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@city_bureau">
+    <meta name="twitter:creator" content="@city_bureau">
+    <meta name="twitter:description" content="View Chicago 2019 runoff election results at the ward and precinct level">
+    <meta name="twitter:title" content="Chicago 2019 Runoff Election Results">
+    <meta name="twitter:image:src" content="https://s3.amazonaws.com/chicago-election-2019/runoff/img/teaser.jpg">
+
+    <link rel="stylesheet" href="https://use.typekit.net/xbg0srh.css">
+    <link rel="stylesheet" type="text/css" href="https://api.tiles.mapbox.com/mapbox-gl-js/v0.51.0/mapbox-gl.css" />
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v0.51.0/mapbox-gl.js"></script>
+    <style>
+        body {
+            background: #fff;
+            color: #333;
+            font-family: "aktiv-grotesk", BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+        }
+
+        hr {
+            border-width: 0.5px;
+            border-color: #ccc;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .mapboxgl-popup {
+            min-width: 200px;
+        }
+
+        .mapboxgl-popup-content {
+            border-radius: 0;
+            max-height: 250px;
+            overflow-y: scroll;
+        }
+
+        .mapboxgl-ctrl-attrib:not(.mapboxgl-compact) p {
+            display: inline;
+        }
+
+        .popup-prop {
+            display: flex;
+            flex-direction: row;
+            flex-grow: 1;
+            margin-bottom: 2px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .popup-prop.area {
+            justify-content: center;
+            line-height: 1;
+        }
+
+        .popup-prop.area.turnout {
+            margin-bottom: 0;
+        }
+
+        .popup-prop.area.turnout .popup-prop-value {
+            width: inherit;
+        }
+
+        .popup-prop.area .popup-prop-value {
+            min-width: 0;
+        }
+
+        .popup-link {
+            width: 100%;
+        }
+
+        .popup-prop-name {
+            font-weight: bold;
+            margin-right: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .popup-prop-name > .color {
+            margin-right: 4px;
+        }
+
+        .popup-prop-name > span:nth-child(2) {
+            line-height: 1;
+        }
+
+        .popup-prop-value {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            width: 45%;
+            width: calc(45% - 8px);
+            margin-left: 8px;
+        }
+
+        .popup-prop-value div {
+            text-align: center;
+        }
+
+        .popup-note {
+            font-style: italic;
+        }
+
+        p {
+            margin: 0;
+            margin-bottom: 8px;
+            line-height: 1.5;
+            font-size: 13px;
+        }
+
+        p:last-of-type {
+            margin-bottom: 0;
+        }
+
+        #candidates > p {
+            margin-bottom: 2px
+        }
+
+        .color {
+            min-width: 10px;
+            width: 10px;
+            height: 20px;
+            display: inline-block;
+            vertical-align: bottom;
+        }
+
+        .color + .label {
+            margin-left: 8px;
+        }
+
+        #legend {
+            padding: 8px;
+            position: absolute;
+            bottom: 26px;
+            right: 6px;
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 1px 1px 1px rgba(0,0,0,.2);
+        }
+
+        #legend p.label {
+            font-weight: bold;
+        }
+
+        label[for="council"] {
+            margin-right: 8px;
+        }
+
+        .ramp-key {
+            display: flex;
+            flex-direction: row;
+            margin-bottom: 8px;
+        }
+
+        .ramp-key .item {
+            font-size: 11px;
+            padding: 2px;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .ramp-key .item:nth-child(3) {
+            color: #fff;
+        }
+
+        @media screen and (max-width: 600px) {
+            #legend {
+                left: 0;
+                right: 0;
+                bottom: 0;
+                max-height: 200px;
+                overflow-y: scroll;
+                -webkit-overflow-scrolling: touch;
+                /* To prevent zoom on mobile */
+                font-size: 16px;
+                -moz-box-shadow: inset 0 -10px 10px -10px rgba(0,0,0,0.6);
+                -webkit-box-shadow: inset 0 -10px 10px -10px rgba(0,0,0,0.6);
+                box-shadow: inset 0 -10px 10px -10px rgba(0,0,0,0.6);
+            }
+
+            #legend p:last-child {
+                margin-bottom: 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <div id="legend">
+        <p class="label">
+            Chicago 2019 Runoff
+        </p>
+        <p>
+            <label>
+                <input type="radio" name="results" value="mayor" checked>
+                <span class="label">
+                    Mayor
+                </span>
+            </label>
+        </p>
+        <!-- <p>
+            <label>
+                <input type="radio" name="results" value="treasurer">
+                <span class="label">
+                    Treasurer
+                </span>
+            </label>
+        </p> -->
+        <p>
+            <label>
+                <input type="radio" name="results" value="council">
+                <span class="label">
+                    City Council
+                </span>
+            </label>
+        </p>
+        <!-- TODO: Add turnout?
+        <p>
+            <label>
+                <input type="radio" name="results" value="turnout"> Turnout
+            </label>
+        </p> -->
+        <p id="council-ward" style="display:none">
+            <label for="council">
+                Ward
+            </label>
+            <select id="council" name="council">
+                <option value="5" selected>5</option>
+                <option value="6">6</option>
+                <option value="15">15</option>
+                <option value="16">16</option>
+                <option value="20">20</option>
+                <option value="21">21</option>
+                <option value="25">25</option>
+                <option value="30">30</option>
+                <option value="31">31</option>
+                <option value="33">33</option>
+                <option value="39">39</option>
+                <option value="40">40</option>
+                <option value="43">43</option>
+                <option value="46">46</option>
+                <option value="47">47</option>
+            </select>
+        </p>
+        <hr />
+        <div id="candidates">
+            <p><span style="font-style:italic">Loading...</span></p>
+            <div id="candidate-legend" style="display: none">
+            </div>
+        </div>
+        <hr />
+        <p>
+            <label>
+                <input type="radio" name="layer" value="wards" checked> Wards
+            </label>
+        </p>
+        <p>
+            <label>
+                <input type="radio" name="layer" value="precincts"> Precincts
+            </label>
+        </p>
+        <hr />
+        <p>
+            <label>
+                <input type="checkbox" name="opacity" value="opacity"> Opacity by # Votes
+            </label>
+        </p>
+    </div>
+    <script src="https://pym.nprapps.org/pym.v1.min.js"></script>
+    <script>
+        var pymChild = new pym.Child();
+        var RESULTS_CANDIDATE_MAP = {
+            "mayor": {
+                "lori_lightfoot": "Lightfoot",
+                "toni_preckwinkle": "Preckwinkle",
+            },
+            "treasurer": {
+                "melissa_conyearsearvin": "Conyears-Earvin",
+                "ameya_pawar": "Pawar",
+            },
+            "5": {
+                "leslie_a_hairston": "Hairston",
+                "william_calloway": "Calloway",
+            },
+            "6": {
+                "roderick_t_sawyer": "Sawyer",
+                "deborah_a_fosterbonner": "Foster-Bonner"
+            },
+            "15": {
+                "raymond_a_lopez": "Lopez",
+                "rafael_rafa_yanez": "Yañez",
+            },
+            "16": {
+                "stephanie_d_coleman": "Coleman",
+                "toni_l_foulkes": "Foulkes",
+            },
+            "20": {
+                "nicole_j_johnson": "Johnson",
+                "jeanette_b_taylor": "Taylor",
+            },
+            "21": {
+                "howard_b_brookins_jr": "Brookins",
+                "marvin_mcneil": "McNeil",
+            },
+            "25": {
+                "alexander_acevedo": "Acevedo",
+                "byron_sigcholopez": "Sigcho-Lopez",
+            },
+            "30": {
+                "jessica_w_gutierrez": "Gutierrez",
+                "ariel_e_reboyras": "Reboyras",
+            },
+            "31": {
+                "milagros_santiago": "Santiago",
+                "felix_cardona_jr": "Cardonoa"
+            },
+            "33": {
+                "r_rodriguez_sanchez": "Rodriguez Sanchez",
+                "deborah_l_mell": "Mell",
+            },
+            "39": {
+                "robert_murphy": "Murphy",
+                "samantha_sam_nugent": "Nugent",
+            },
+            "40": {
+                "andr_vasquez": "Vasquez",
+                "patrick_j_oconnor": "O'Connor",
+            },
+            "43": {
+                "derek_lindblom": "Lindblom",
+                "michele_smith": "Smith",
+            },
+            "46": {
+                "marianne_lalonde": "Lalonde",
+                "james_cappleman": "Cappleman",
+            },
+            "47": {
+                "michael_a_negron": "Negron",
+                "matt_martin": "Martin",
+            },
+        };
+        var CANDIDATE_COLORS = [
+            "#d95f02",
+            "#7570b3",
+        ];
+        // TODO: Update range
+        var MARGIN_INTERPOLATION = [
+            -0.15, "#542788",
+            -0.075, "#998ec3",
+            -0.01, "#d8daeb",
+            0.01, "#fee0b6",
+            0.075, "#f1a340",
+            0.15, "#b35806"
+        ];
+        var candidates = [];
+        var MOBILE_BREAKPOINT = 600;
+        var map = new mapboxgl.Map({
+            container: 'map',
+            hash: true,
+            center: [-87.8255, 41.8384],
+            minZoom: 9,
+            maxZoom: 17,
+            zoom: 9,
+            style: 'style.json',
+        });
+        map.dragRotate.disable();
+        map.touchZoomRotate.disableRotation();
+
+        map.on('load', function () {
+            map.addControl(new mapboxgl.NavigationControl({ showCompass: false }));
+
+            var hoverPopup = new mapboxgl.Popup({
+                closeButton: false,
+                closeOnClick: false
+            });
+
+            var clickPopup = new mapboxgl.Popup({
+                closeButton: true,
+                closeOnClick: true,
+            });
+
+            function removePopup(popup) {
+                map.getCanvas().style.cursor = '';
+                popup.remove();
+            }
+
+            function popupContent(feat) {
+                var layerTitle = document.querySelector('input[name="results"]:checked + .label').innerHTML.trim();
+                var labelContent = layerTitle + ": Ward " + feat.properties.ward;
+                if (feat.properties.hasOwnProperty('precinct')) {
+                    labelContent += ", Precinct " + feat.properties.precinct;
+                }
+                content = "<div class='popup-prop area'>" +
+                    "<div class='popup-prop-name'>" + labelContent + "</div>" +
+                "</div>" +
+                "<div class='popup-prop area turnout'>" +
+                    "<div class='popup-prop-name'>Turnout</div>" +
+                    "<div class='popup-prop-value'>" +
+                        ((feat.properties.ballots_cast / feat.properties.registered_voters) * 100).toFixed(1) + "%" +
+                    "</div>" +
+                "</div><hr>";
+                var voteDenominator = candidates.map(function (c) { return feat.properties[c.key]; })
+                    .reduce(function (prev, cur) { return prev + cur; }, 0);
+                return content + candidates.sort(function (a, b) { return feat.properties[b.key] - feat.properties[a.key]; })
+                    .map(function (c) {
+                        return "<div class='popup-prop'>" +
+                            "<div class='popup-prop-name'>" +
+                                "<span class='color' style='background-color: " + c.color + "'></span>\n" +
+                                "<span>" + c.label + "</span>" +
+                            "</div>" +
+                            "<div class='popup-prop-value'>" +
+                                "<div>" + feat.properties[c.key].toLocaleString() + "</div>" +
+                                "<div>" + ((feat.properties[c.key] / voteDenominator) * 100 || 0).toFixed(1) + "%</div>" +
+                            "</div>" +
+                        "</div>";
+                    }).join("");
+            }
+
+            function onMouseMove(e) {
+                var features = map.queryRenderedFeatures(e.point, { layers: ["wards", "precincts"] });
+                if (features.length > 0 && !clickPopup.isOpen()) {
+                    map.getCanvas().style.cursor = "pointer";
+                    if (window.innerWidth >= MOBILE_BREAKPOINT) {
+                        hoverPopup.setLngLat(e.lngLat)
+                            .setHTML(popupContent(features[0]))
+                            .addTo(map);
+                    }
+                } else {
+                    removePopup(hoverPopup);
+                }
+            }
+
+            function onMouseOut(e) {
+                removePopup(hoverPopup);
+            }
+
+            function onMapClick(e) {
+                var features = map.queryRenderedFeatures(e.point, { layers: ["wards", "precincts"] });
+                if (features.length > 0) {
+                    map.getCanvas().style.cursor = "pointer";
+                    clickPopup.setLngLat(e.lngLat)
+                        .setHTML(popupContent(features[0], e))
+                        .addTo(map);
+                }
+            }
+
+            updateMapData();
+            updateMapLayer();
+
+            map.on("mousemove", "wards", onMouseMove);
+            map.on("mouseout", "wards", onMouseOut);
+            map.on("click", "wards", onMapClick);
+            map.on("mousemove", "precincts", onMouseMove);
+            map.on("mouseout", "precincts", onMouseOut);
+            map.on("click", "precincts", onMapClick);
+            
+            document.querySelectorAll(
+                "input[name='results'], #council-ward, input[name='opacity']"
+            ).forEach(function (el) {
+                el.addEventListener("change", updateMapData);
+            });
+            document.querySelectorAll("input[name='layer']").forEach(function (el) {
+                el.addEventListener("change", updateMapLayer);
+            });
+        });
+
+        function getMapLayer() {
+            return document.querySelector("input[name='layer'][type='radio']:checked").value;
+        }
+
+        function getMapResults() {
+            return document.querySelector("input[name='results'][type='radio']:checked").value;
+        }
+
+        function getCandidates() {
+            var resultsLayer = document.querySelector("input[name='results']:checked").value;
+            var candidateObj = {};
+            if (resultsLayer === 'council') {
+                var ward = document.querySelector("select[name='council']").value;
+                candidateObj = RESULTS_CANDIDATE_MAP[ward];
+            } else {
+                candidateObj = RESULTS_CANDIDATE_MAP[resultsLayer];
+            }
+            return Object.keys(candidateObj).sort(function (a, b) {
+                if (candidateObj[a] < candidateObj[b]) return -1;
+                if (candidateObj[a] > candidateObj[b]) return 1;
+                return 0;
+            }).map(function (key, idx) {
+                return {
+                    key: key,
+                    label: candidateObj[key],
+                    color: CANDIDATE_COLORS[idx],
+                }
+            });
+        }
+
+        function updateMapData() {
+            var results = getMapResults();
+            document.getElementById('council-ward').style.display = results === 'council' ? '' : 'none';
+            candidates = getCandidates();
+            document.querySelector("#candidates").innerHTML = candidates.map(function (candidate, idx) {
+                return "<p><span class='color' style='background-color: " + candidate.color + "'></span>" +
+                    "<span class='label'>" + candidate.label + "</span>" +
+                "</p><div class='ramp-key'>" + makeRampKey(idx) + "</div>";
+            }).join("");
+            updateCandidateData(candidates);
+        }
+
+        function updateCandidateData(candidates) {
+            updateMapLayer();
+            var marginVar = ["-"].concat(candidates.map(function (c) {
+                return ["/", ["get", c.key], ["get", "ballots_cast"]];
+            }));
+            var interpolation = ["interpolate", ["linear"], ["var", "margin"]].concat(MARGIN_INTERPOLATION);
+            var expression = ["let", "margin", marginVar, interpolation];
+            map.setPaintProperty("wards", "fill-opacity", ["case", ["==", ["get", "ballots_cast"], 0], 0, 0.8]);
+            map.setPaintProperty("precincts", "fill-opacity", ["case", ["==", ["get", "ballots_cast"], 0], 0, 0.8]);
+            map.setPaintProperty("wards", "fill-color", expression);
+            map.setPaintProperty("precincts", "fill-color", expression);
+            map.setPaintProperty("wards", "fill-opacity", popOpacityScale("wards"));
+            map.setPaintProperty("precincts", "fill-opacity", popOpacityScale("precincts"));
+        }
+
+        function updateMapLayer() {
+            var layer = getMapLayer();
+            var hideLayer = layer === "precincts" ? "wards" : "precincts";
+            map.setFilter(layer, ["has", candidates[0].key]);
+            map.setFilter(hideLayer, ["has", "FAKEPROP"]);
+        }
+
+        function makeRampKey(index) {
+            var labels = ["50.1%", "65%", "80+%"];
+            var colors = MARGIN_INTERPOLATION.filter(function (s) { return typeof s === "string"; });
+            var keyItems = index === 1 ? colors.slice(0, 3).reverse() : colors.slice(3);
+            return keyItems.map(function (color, idx) {
+                return "<div class='item' style='background-color:" + color + "'>" + labels[idx] + "</div>";
+            }).join("");
+        }
+
+        function popOpacityScale(layer) {
+            var maxScale = layer === "wards" ? 20000 : 500;
+            var scaleOpacity = document.querySelector("input[name='opacity']").checked;
+            return scaleOpacity ?
+                ["interpolate", ["linear"], ["get", "ballots_cast"], 0, 0.0, maxScale, 1.0] :
+                ["case", ["==", ["get", "ballots_cast"], 0], 0, 0.7];
+        }
+    </script>
+</body>
+</html>
