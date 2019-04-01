@@ -64,12 +64,20 @@
         }
 
         .color {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
-            opacity: 0.7;
             display: inline-block;
             vertical-align: bottom;
+        }
+
+        .dot-label {
+            margin-left: 6px;
+        }
+
+        p label {
+            display: flex;
+            align-items: center;
         }
 
         #legend {
@@ -98,7 +106,8 @@
     <div id="map"></div>
     <div id="legend">
         <p>
-            Each dot represents a vote randomly placed inside a residential parcel of its precinct.
+            <span class="color" style="background-color: #ccc"></span>
+            <span class="dot-label">5 votes</span>
         </p>
         <p>
             <label>

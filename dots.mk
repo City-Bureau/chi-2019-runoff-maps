@@ -1,9 +1,9 @@
-.PRECIOUS: data/parcels.geojson input/cook-parcels.geojson
+.PRECIOUS: aggspread data/parcels.geojson input/cook-parcels.geojson
 
 CANDIDATES = lightfoot preckwinkle
 CANDIDATE_FIELDS = lightfoot,preckwinkle
 RENAME_FIELDS = lightfoot="LORI LIGHTFOOT",preckwinkle="TONI PRECKWINKLE"
-DENSITY_DIVIDE = 100
+DENSITY_DIVIDE = 5
 mapshaper_cmd = node --max_old_space_size=4096 $$(which mapshaper)
 
 data/dots.mbtiles: data/dots.geojson
@@ -16,7 +16,7 @@ data/candidates/%.geojson: data/candidates/%.csv
 	mapshaper $< -points x=lon y=lat -each 'candidate = "$*"' -filter-fields candidate -o $@
 
 data/candidates/%.csv: data/election.geojson data/parcels.geojson aggspread
-	./aggspread -agg $< -prop $$(echo '$*' | cut -c1-10) -spread data/parcels.geojson -output $@
+	./aggspread -agg $< -prop $* -spread data/parcels.geojson -output $@
 
 data/parcels.geojson: input/cook-parcels.geojson data/clip.geojson
 	$(mapshaper_cmd) -i $< \
@@ -30,16 +30,12 @@ data/parcels.geojson: input/cook-parcels.geojson data/clip.geojson
 data/clip.geojson: input/cook.geojson input/chicago.geojson
 	$(mapshaper_cmd) -i $< -erase $(filter-out $<,$^) remove-slivers -o $@
 
-# data/election-density.geojson: data/election.geojson
-# 	mapshaper -i $< \
-# 	$(foreach c, $(CANDIDATES), -each "$$(echo '$(c)' | cut -c1-10) = Math.floor($$(echo '$(c)' | cut -c1-10) / $(DENSITY_DIVIDE))") \
-# 	-o $@ format=geojson
-
 data/election.geojson: input/results.geojson
 	mapshaper -i $< \
 	-rename-fields $(RENAME_FIELDS) \
 	-filter-fields $(CANDIDATE_FIELDS) \
-	 -o $@ format=geojson
+	$(foreach c, $(CANDIDATES), -each "$(c) = Math.floor($(c)) / $(DENSITY_DIVIDE)") \
+	-o $@ format=geojson
 
 input/cook.geojson:
 	wget -O $@ 'https://datacatalog.cookcountyil.gov/api/geospatial/ihae-id2m?method=export&format=GeoJSON'
