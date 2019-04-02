@@ -574,8 +574,8 @@
             var maxScale = layer === "wards" ? 20000 : 500;
             var scaleOpacity = document.querySelector("input[name='opacity']").checked;
             return scaleOpacity ?
-                ["interpolate", ["linear"], ["get", "ballots_cast"], 0, 0.0, maxScale, 1.0] :
-                ["case", ["==", ["get", "ballots_cast"], 0], 0, 0.7];
+                ["interpolate", ["linear"], ["get", "ballots_cast"], 0, 0.0, maxScale, 0.8] :
+                ["case", ["==", ["get", "ballots_cast"], 0], 0, 0.8];
         }
     </script>
 </body>
