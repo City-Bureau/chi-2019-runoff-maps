@@ -34,7 +34,7 @@ data/election.geojson: input/results.geojson
 	mapshaper -i $< \
 	-rename-fields $(RENAME_FIELDS) \
 	-filter-fields $(CANDIDATE_FIELDS) \
-	$(foreach c, $(CANDIDATES), -each "$(c) = Math.floor($(c)) / $(DENSITY_DIVIDE)") \
+	$(foreach c, $(CANDIDATES), -each "$(c) = Math.floor($(c)) / $(DENSITY_DIVIDE) || 0") \
 	-o $@ format=geojson
 
 input/cook.geojson:

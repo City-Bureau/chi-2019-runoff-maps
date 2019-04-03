@@ -18,6 +18,8 @@ if __name__ == "__main__":
             for prop in feature["properties"].keys():
                 if prop in IGNORE_PROPS or feature["properties"][prop] is None:
                     continue
+                if prop not in ward_data_map[ward]:
+                    ward_data_map[ward][prop] = 0
                 ward_data_map[ward][prop] += feature["properties"][prop]
     data_list = []
     for key, value in ward_data_map.items():

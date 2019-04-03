@@ -13,5 +13,5 @@ deploy:
 tiles:
 	for f in ./data/*.mbtiles; do tile-join --no-tile-size-limit --force -e ./tiles/$$(basename $$f .mbtiles) $$f; done
 
-input/results.geojson:
-	wget -O $@ https://raw.githubusercontent.com/datamade/chicago-municipal-elections/master/data/municipal_general_2019.geojson
+# input/results.geojson:
+# 	wget -O $@ https://raw.githubusercontent.com/datamade/chicago-municipal-elections/master/data/municipal_general_2019.geojson

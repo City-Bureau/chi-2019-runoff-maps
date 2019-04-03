@@ -231,14 +231,14 @@
                 </span>
             </label>
         </p>
-        <!-- <p>
+        <p>
             <label>
                 <input type="radio" name="results" value="treasurer">
                 <span class="label">
                     Treasurer
                 </span>
             </label>
-        </p> -->
+        </p>
         <p>
             <label>
                 <input type="radio" name="results" value="council">
@@ -308,7 +308,7 @@
                 "toni_preckwinkle": "Preckwinkle",
             },
             "treasurer": {
-                "melissa_conyearsearvin": "Conyears-Earvin",
+                "melissa_conyearservin": "Conyears-Ervin",
                 "ameya_pawar": "Pawar",
             },
             "5": {
@@ -376,14 +376,13 @@
             "#d95f02",
             "#7570b3",
         ];
-        // TODO: Update range
         var MARGIN_INTERPOLATION = [
-            -0.15, "#542788",
-            -0.075, "#998ec3",
+            -0.6, "#542788",
+            -0.3, "#998ec3",
             -0.01, "#d8daeb",
             0.01, "#fee0b6",
-            0.075, "#f1a340",
-            0.15, "#b35806"
+            0.3, "#f1a340",
+            0.6, "#b35806"
         ];
         var candidates = [];
         var MOBILE_BREAKPOINT = 600;
@@ -571,7 +570,7 @@
         }
 
         function popOpacityScale(layer) {
-            var maxScale = layer === "wards" ? 20000 : 500;
+            var maxScale = layer === "wards" ? 17500 : 400;
             var scaleOpacity = document.querySelector("input[name='opacity']").checked;
             return scaleOpacity ?
                 ["interpolate", ["linear"], ["get", "ballots_cast"], 0, 0.0, maxScale, 0.8] :
