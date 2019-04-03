@@ -221,61 +221,8 @@
     <div id="map"></div>
     <div id="legend">
         <p class="label">
-            Chicago 2019 Runoff
+            Chicago 2019 Runoff Turnout
         </p>
-        <p>
-            <label>
-                <input type="radio" name="results" value="mayor" checked>
-                <span class="label">
-                    Mayor
-                </span>
-            </label>
-        </p>
-        <p>
-            <label>
-                <input type="radio" name="results" value="treasurer">
-                <span class="label">
-                    Treasurer
-                </span>
-            </label>
-        </p>
-        <p>
-            <label>
-                <input type="radio" name="results" value="council">
-                <span class="label">
-                    City Council
-                </span>
-            </label>
-        </p>
-        <p id="council-ward" style="display:none">
-            <label for="council">
-                Ward
-            </label>
-            <select id="council" name="council">
-                <option value="5" selected>5</option>
-                <option value="6">6</option>
-                <option value="15">15</option>
-                <option value="16">16</option>
-                <option value="20">20</option>
-                <option value="21">21</option>
-                <option value="25">25</option>
-                <option value="30">30</option>
-                <option value="31">31</option>
-                <option value="33">33</option>
-                <option value="39">39</option>
-                <option value="40">40</option>
-                <option value="43">43</option>
-                <option value="46">46</option>
-                <option value="47">47</option>
-            </select>
-        </p>
-        <hr />
-        <div id="candidates">
-            <p><span style="font-style:italic">Loading...</span></p>
-            <div id="candidate-legend" style="display: none">
-            </div>
-        </div>
-        <hr />
         <p>
             <label>
                 <input type="radio" name="layer" value="wards" checked> Wards
@@ -288,97 +235,47 @@
         </p>
         <hr />
         <p>
-            <label>
-                <input type="checkbox" name="opacity" value="opacity"> Opacity by # Votes
-            </label>
+            <span class="color" style="background-color: rgba(255, 255, 178, 0.8)"></span>
+            <span>
+                0%
+            </span>
+        </p>
+        <p>
+            <span class="color" style="background-color: rgba(254, 204, 92, 0.8)"></span>
+            <span>
+                15%
+            </span>
+        </p>
+        <p>
+            <span class="color" style="background-color: rgba(253, 141, 60, 0.8)"></span>
+            <span>
+                30%
+            </span>
+        </p>
+        <p>
+            <span class="color" style="background-color: rgba(240, 59, 32, 0.8)"></span>
+            <span>
+                45%
+            </span>
+        </p>
+        <p>
+            <span class="color" style="background-color: rgba(189, 0, 38, 0.8)"></span>
+            <span>
+                60%+
+            </span>
         </p>
     </div>
     <script src="https://pym.nprapps.org/pym.v1.min.js"></script>
     <script>
         var pymChild = new pym.Child();
-        var RESULTS_CANDIDATE_MAP = {
-            "mayor": {
-                "lori_lightfoot": "Lightfoot",
-                "toni_preckwinkle": "Preckwinkle",
-            },
-            "treasurer": {
-                "melissa_conyearservin": "Conyears-Ervin",
-                "ameya_pawar": "Pawar",
-            },
-            "5": {
-                "leslie_a_hairston": "Hairston",
-                "william_calloway": "Calloway",
-            },
-            "6": {
-                "roderick_t_sawyer": "Sawyer",
-                "deborah_a_fosterbonner": "Foster-Bonner"
-            },
-            "15": {
-                "raymond_a_lopez": "Lopez",
-                "rafael_rafa_yanez": "Yañez",
-            },
-            "16": {
-                "stephanie_d_coleman": "Coleman",
-                "toni_l_foulkes": "Foulkes",
-            },
-            "20": {
-                "nicole_j_johnson": "Johnson",
-                "jeanette_b_taylor": "Taylor",
-            },
-            "21": {
-                "howard_b_brookins_jr": "Brookins",
-                "marvin_mcneil": "McNeil",
-            },
-            "25": {
-                "alexander_acevedo": "Acevedo",
-                "byron_sigcholopez": "Sigcho-Lopez",
-            },
-            "30": {
-                "jessica_w_gutierrez": "Gutierrez",
-                "ariel_e_reboyras": "Reboyras",
-            },
-            "31": {
-                "milagros_santiago": "Santiago",
-                "felix_cardona_jr": "Cardonoa"
-            },
-            "33": {
-                "rossana_sanchez": "Rodríguez-Sánchez",
-                "deborah_l_mell": "Mell",
-            },
-            "39": {
-                "robert_murphy": "Murphy",
-                "samantha_sam_nugent": "Nugent",
-            },
-            "40": {
-                "andr_vasquez": "Vasquez",
-                "patrick_j_oconnor": "O'Connor",
-            },
-            "43": {
-                "derek_lindblom": "Lindblom",
-                "michele_smith": "Smith",
-            },
-            "46": {
-                "marianne_lalonde": "Lalonde",
-                "james_cappleman": "Cappleman",
-            },
-            "47": {
-                "michael_a_negron": "Negron",
-                "matt_martin": "Martin",
-            },
-        };
         var CANDIDATE_COLORS = [
             "#d95f02",
             "#7570b3",
         ];
-        var MARGIN_INTERPOLATION = [
-            -0.6, "#542788",
-            -0.3, "#998ec3",
-            -0.01, "#d8daeb",
-            0.01, "#fee0b6",
-            0.3, "#f1a340",
-            0.6, "#b35806"
+        var candidates = [
+            {key: "lori_lightfoot", label: "Lightfoot"},
+            {key: "toni_preckwinkle", label: "Preckwinkle"},
         ];
-        var candidates = [];
         var MOBILE_BREAKPOINT = 600;
         var map = new mapboxgl.Map({
             container: 'map',
@@ -411,8 +308,7 @@
             }
 
             function popupContent(feat) {
-                var layerTitle = document.querySelector('input[name="results"]:checked + .label').innerHTML.trim();
-                var labelContent = layerTitle + ": Ward " + feat.properties.ward;
+                var labelContent = "Ward " + feat.properties.ward;
                 if (feat.properties.hasOwnProperty('precinct')) {
                     labelContent += ", Precinct " + feat.properties.precinct;
                 }
@@ -431,7 +327,6 @@
                     .map(function (c) {
                         return "<div class='popup-prop'>" +
                             "<div class='popup-prop-name'>" +
-                                "<span class='color' style='background-color: " + c.color + "'></span>\n" +
                                 "<span>" + c.label + "</span>" +
                             "</div>" +
                             "<div class='popup-prop-value'>" +
@@ -470,7 +365,6 @@
                 }
             }
 
-            updateMapData();
             updateMapLayer();
 
             map.on("mousemove", "wards", onMouseMove);
@@ -479,12 +373,7 @@
             map.on("mousemove", "precincts", onMouseMove);
             map.on("mouseout", "precincts", onMouseOut);
             map.on("click", "precincts", onMapClick);
-            
-            document.querySelectorAll(
-                "input[name='results'], #council-ward, input[name='opacity']"
-            ).forEach(function (el) {
-                el.addEventListener("change", updateMapData);
-            });
+
             document.querySelectorAll("input[name='layer']").forEach(function (el) {
                 el.addEventListener("change", updateMapLayer);
             });
@@ -494,81 +383,11 @@
             return document.querySelector("input[name='layer'][type='radio']:checked").value;
         }
 
-        function getMapResults() {
-            return document.querySelector("input[name='results'][type='radio']:checked").value;
-        }
-
-        function getCandidates() {
-            var resultsLayer = document.querySelector("input[name='results']:checked").value;
-            var candidateObj = {};
-            if (resultsLayer === 'council') {
-                var ward = document.querySelector("select[name='council']").value;
-                candidateObj = RESULTS_CANDIDATE_MAP[ward];
-            } else {
-                candidateObj = RESULTS_CANDIDATE_MAP[resultsLayer];
-            }
-            return Object.keys(candidateObj).sort(function (a, b) {
-                if (candidateObj[a] < candidateObj[b]) return -1;
-                if (candidateObj[a] > candidateObj[b]) return 1;
-                return 0;
-            }).map(function (key, idx) {
-                return {
-                    key: key,
-                    label: candidateObj[key],
-                    color: CANDIDATE_COLORS[idx],
-                }
-            });
-        }
-
-        function updateMapData() {
-            var results = getMapResults();
-            document.getElementById('council-ward').style.display = results === 'council' ? '' : 'none';
-            candidates = getCandidates();
-            document.querySelector("#candidates").innerHTML = candidates.map(function (candidate, idx) {
-                return "<p><span class='color' style='background-color: " + candidate.color + "'></span>" +
-                    "<span class='label'>" + candidate.label + "</span>" +
-                "</p><div class='ramp-key'>" + makeRampKey(idx) + "</div>";
-            }).join("");
-            updateCandidateData(candidates);
-        }
-
-        function updateCandidateData(candidates) {
-            updateMapLayer();
-            var marginVar = ["-"].concat(candidates.map(function (c) {
-                return ["/", ["get", c.key], ["get", "ballots_cast"]];
-            }));
-            var interpolation = ["interpolate", ["linear"], ["var", "margin"]].concat(MARGIN_INTERPOLATION);
-            var expression = ["let", "margin", marginVar, interpolation];
-            map.setPaintProperty("wards", "fill-opacity", ["case", ["==", ["get", "ballots_cast"], 0], 0, 0.8]);
-            map.setPaintProperty("precincts", "fill-opacity", ["case", ["==", ["get", "ballots_cast"], 0], 0, 0.8]);
-            map.setPaintProperty("wards", "fill-color", expression);
-            map.setPaintProperty("precincts", "fill-color", expression);
-            map.setPaintProperty("wards", "fill-opacity", popOpacityScale("wards"));
-            map.setPaintProperty("precincts", "fill-opacity", popOpacityScale("precincts"));
-        }
-
         function updateMapLayer() {
             var layer = getMapLayer();
             var hideLayer = layer === "precincts" ? "wards" : "precincts";
             map.setFilter(layer, ["has", candidates[0].key]);
             map.setFilter(hideLayer, ["has", "FAKEPROP"]);
-        }
-
-        function makeRampKey(index) {
-            var labels = ["50.1%", "65%", "80+%"];
-            var colors = MARGIN_INTERPOLATION.filter(function (s) { return typeof s === "string"; });
-            var keyItems = index === 1 ? colors.slice(0, 3).reverse() : colors.slice(3);
-            return keyItems.map(function (color, idx) {
-                return "<div class='item' style='background-color:" + color + "'>" + labels[idx] + "</div>";
-            }).join("");
-        }
-
-        function popOpacityScale(layer) {
-            var maxScale = layer === "wards" ? 17500 : 400;
-            var scaleOpacity = document.querySelector("input[name='opacity']").checked;
-            return scaleOpacity ?
-                ["interpolate", ["linear"], ["get", "ballots_cast"], 0, 0.0, maxScale, 0.8] :
-                ["case", ["==", ["get", "ballots_cast"], 0], 0, 0.8];
         }
     </script>
 </body>
